@@ -28,7 +28,11 @@ def handle_chat(payload: ChatRequest):
     POST Endpoint: Accepts user prompt, processes response, returns JSON payload.
     """
     try:
-        reply = bot_instance.get_response(payload.user_id, payload.message)
+        #reply = bot_instance.get_response(payload.user_id, payload.message)
+        reply = bot_instance.get_response(payload.user_id, payload.message, 
+                                          payload.context.model_dump() if payload.context else None 
+                                         )
+        
         history = bot_instance.get_history(payload.user_id)
         
         return ChatResponse(
