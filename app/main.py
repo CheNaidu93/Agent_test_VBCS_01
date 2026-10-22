@@ -6,6 +6,7 @@ import os
 from app.models import ChatRequest, ChatResponse
 from app.chatbot import bot_instance
 
+
 app = FastAPI(
     title="Python Web Chatbot API",
     description="REST API and Website interface for AI Chatbot.",
