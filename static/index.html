@@ -1,99 +1,397 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Chatbot Assistant</title>
+
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f4f6f8; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .chat-card { width: 450px; height: 600px; background: #ffffff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
-        .chat-header { background: #0078d4; color: white; padding: 16px; font-size: 1.1rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-        .chat-body { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .message { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
-        .user-msg { background: #0078d4; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .bot-msg { background: #e9ecef; color: #212529; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .chat-footer { display: flex; padding: 12px; border-top: 1px solid #e0e0e0; background: #fafafa; }
-        .chat-input { flex: 1; border: 1px solid #ccc; padding: 10px 14px; border-radius: 20px; outline: none; font-size: 0.95rem; }
-        .chat-input:focus { border-color: #0078d4; }
-        .send-btn { background: #0078d4; color: white; border: none; padding: 10px 18px; margin-left: 8px; border-radius: 20px; cursor: pointer; font-weight: 600; }
-        .send-btn:hover { background: #005a9e; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .chat-card {
+            width: 100%;
+            max-width: 450px;
+            height: min(600px, calc(100vh - 20px));
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: #0078d4;
+            color: white;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .chat-header-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .chat-context {
+            font-size: 0.75rem;
+            font-weight: 400;
+            opacity: 0.9;
+            overflow-wrap: anywhere;
+        }
+
+        .history-btn {
+            background: transparent;
+            border: 1px solid white;
+            color: white;
+            padding: 5px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .history-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .chat-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            overflow-wrap: anywhere;
+        }
+
+        .user-msg {
+            background: #0078d4;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .bot-msg {
+            background: #e9ecef;
+            color: #212529;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .chat-footer {
+            display: flex;
+            padding: 12px;
+            border-top: 1px solid #e0e0e0;
+            background: #fafafa;
+        }
+
+        .chat-input {
+            flex: 1;
+            min-width: 0;
+            border: 1px solid #ccc;
+            padding: 10px 14px;
+            border-radius: 20px;
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        .chat-input:focus {
+            border-color: #0078d4;
+        }
+
+        .send-btn {
+            background: #0078d4;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            margin-left: 8px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .send-btn:hover {
+            background: #005a9e;
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 400px) {
+            .chat-header {
+                padding: 12px;
+            }
+
+            .chat-body {
+                padding: 12px;
+            }
+
+            .send-btn {
+                padding: 10px 12px;
+            }
+        }
     </style>
 </head>
+
 <body>
 
 <div class="chat-card">
+
     <div class="chat-header">
-        <span>Chatbot Interface</span>
-        <button onclick="loadHistory()" style="background:transparent; border:1px solid white; color:white; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.75rem;">Sync History (GET)</button>
+        <div class="chat-header-info">
+            <span>AI Assistant</span>
+            <span class="chat-context" id="chatContextLabel">
+                Context: GENERAL
+            </span>
+        </div>
+
+        <button
+            class="history-btn"
+            type="button"
+            onclick="loadHistory()">
+            Sync History
+        </button>
     </div>
+
     <div class="chat-body" id="chatContainer">
-        <div class="message bot-msg">Hello! How can I help you today?</div>
+        <div class="message bot-msg">
+            Hello! How can I help you today?
+        </div>
     </div>
+
     <div class="chat-footer">
-        <input type="text" id="userInput" class="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()">
-        <button class="send-btn" onclick="sendMessage()">Send</button>
+        <input
+            type="text"
+            id="userInput"
+            class="chat-input"
+            placeholder="Type a message..."
+            autocomplete="off"
+            onkeydown="if(event.key === 'Enter') sendMessage()">
+
+        <button
+            class="send-btn"
+            id="sendButton"
+            type="button"
+            onclick="sendMessage()">
+            Send
+        </button>
     </div>
+
 </div>
 
 <script>
-    // Unique user session ID
-    const userId = "session_" + Math.floor(Math.random() * 100000);
+    // --------------------------------------------------
+    // 1. Read context supplied by the VBCS launch button
+    // --------------------------------------------------
+
+    const chatUrlParams = new URLSearchParams(window.location.search);
+
+    const requestedPageType =
+        (chatUrlParams.get("page_type") || "GENERAL").toUpperCase();
+
+    // Accept only the context types supported by this chatbot.
+    const allowedPageTypes = [
+        "GENERAL",
+        "CUSTOMER",
+        "SERVICE_REQUEST"
+    ];
+
+    const pageType = allowedPageTypes.includes(requestedPageType)
+        ? requestedPageType
+        : "GENERAL";
+
+    const recordId = chatUrlParams.get("record_id") || null;
+
+    const chatContext = {
+        application: "Oracle Fusion",
+        page_type: pageType,
+        record_id: recordId
+    };
+
+    // Display the selected context in the header.
+    const contextLabel = document.getElementById("chatContextLabel");
+
+    contextLabel.textContent = recordId
+        ? `Context: ${pageType} | Record: ${recordId}`
+        : `Context: ${pageType} | No record ID`;
+
+    console.log("Chat context initialized:", chatContext);
+
+
+    // --------------------------------------------------
+    // 2. Create a stable session ID for this browser tab
+    // --------------------------------------------------
+
+    const sessionStorageKey =
+        `oracle_chat_session_${pageType}_${recordId || "general"}`;
+
+    let userId = sessionStorage.getItem(sessionStorageKey);
+
+    if (!userId) {
+        userId = "session_" + (
+            window.crypto && window.crypto.randomUUID
+                ? window.crypto.randomUUID()
+                : Date.now() + "_" + Math.floor(Math.random() * 100000)
+        );
+
+        sessionStorage.setItem(sessionStorageKey, userId);
+    }
+
+
+    // --------------------------------------------------
+    // 3. Send a chat message with its selected context
+    // --------------------------------------------------
 
     async function sendMessage() {
         const inputElem = document.getElementById("userInput");
-        const message = inputElem.value.trim();
-        if (!message) return;
+        const sendButton = document.getElementById("sendButton");
 
-        // Append user message immediately to UI
+        const message = inputElem.value.trim();
+
+        if (!message || sendButton.disabled) {
+            return;
+        }
+
+        // Display the user's message immediately.
         appendMessage(message, "user-msg");
         inputElem.value = "";
+        sendButton.disabled = true;
 
         try {
-            // REST POST Call to backend API
             const response = await fetch("/api/v1/chat", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_id: userId, message: message })
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    message: message,
+                    context: chatContext
+                })
             });
 
-            if (!response.ok) throw new Error("API Network error");
+            if (!response.ok) {
+                throw new Error(
+                    `Chat API request failed with status ${response.status}`
+                );
+            }
 
             const data = await response.json();
-            // Append bot response from API
-            appendMessage(data.response, "bot-msg");
+
+            appendMessage(
+                data.response || "The chatbot returned an empty response.",
+                "bot-msg"
+            );
+
         } catch (error) {
-            appendMessage("Error communicating with server.", "bot-msg");
-            console.error(error);
+            console.error("Chat API error:", error);
+
+            appendMessage(
+                "Error communicating with the chatbot server. Please try again.",
+                "bot-msg"
+            );
+
+        } finally {
+            sendButton.disabled = false;
+            inputElem.focus();
         }
     }
+
+
+    // --------------------------------------------------
+    // 4. Load conversation history for this session
+    // --------------------------------------------------
 
     async function loadHistory() {
         try {
-            // REST GET Call to fetch conversation history
-            const response = await fetch(`/api/v1/history/${userId}`);
+            const response = await fetch(
+                `/api/v1/history/${encodeURIComponent(userId)}`
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    `History request failed with status ${response.status}`
+                );
+            }
+
             const data = await response.json();
-
             const container = document.getElementById("chatContainer");
-            container.innerHTML = ""; // Clear view
 
-            data.history.forEach(item => {
-                const className = item.role === "user" ? "user-msg" : "bot-msg";
-                appendMessage(item.text, className);
-            });
+            container.innerHTML = "";
+
+            if (data.history && data.history.length > 0) {
+                data.history.forEach(item => {
+                    const className = item.role === "user"
+                        ? "user-msg"
+                        : "bot-msg";
+
+                    appendMessage(item.text, className);
+                });
+            } else {
+                appendMessage(
+                    "No previous conversation history was found.",
+                    "bot-msg"
+                );
+            }
+
         } catch (error) {
             console.error("Failed to load history:", error);
+
+            appendMessage(
+                "Unable to load conversation history.",
+                "bot-msg"
+            );
         }
     }
+
+
+    // --------------------------------------------------
+    // 5. Add a message to the chat window
+    // --------------------------------------------------
 
     function appendMessage(text, className) {
         const container = document.getElementById("chatContainer");
         const msgDiv = document.createElement("div");
+
         msgDiv.className = `message ${className}`;
-        msgDiv.textContent = text;
+        msgDiv.textContent = String(text ?? "");
+
         container.appendChild(msgDiv);
         container.scrollTop = container.scrollHeight;
     }
+
 </script>
 
 </body>
