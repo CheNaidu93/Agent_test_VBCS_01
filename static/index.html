@@ -217,6 +217,8 @@
     // --------------------------------------------------
 
     const chatUrlParams = new URLSearchParams(window.location.search);
+    //added to pass username
+    const userName = chatUrlParams.get("user_name") || "Fusion User";
 
     const requestedPageType =
         (chatUrlParams.get("page_type") || "GENERAL").toUpperCase();
@@ -243,9 +245,12 @@
     // Display the selected context in the header.
     const contextLabel = document.getElementById("chatContextLabel");
 
+    //contextLabel.textContent = recordId
+      //  ? `Context: ${pageType} | Record: ${recordId}`
+        //: `Context: ${pageType} | No record ID`;
     contextLabel.textContent = recordId
-        ? `Context: ${pageType} | Record: ${recordId}`
-        : `Context: ${pageType} | No record ID`;
+     ? `Context: ${pageType} | User: ${userName} | Record: ${recordId}`
+     : `Context: ${pageType} | User: ${userName} | No record ID`;
 
     console.log("Chat context initialized:", chatContext);
 
