@@ -195,7 +195,6 @@ class SimpleChatbot:
         return (
             "I am the Service Request chatbot. You can ask, for example:\n"
             "• Show SR-10025\n"
-            "• Show all open tickets\n"
             "• List all tickets\n"
             "• Show the ticket summary"
         )
