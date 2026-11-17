@@ -369,7 +369,7 @@
     // --------------------------------------------------
 
     const chatUrlParams = new URLSearchParams(window.location.search);
-    const userName = chatUrlParams.get("user_name") || "Fusion User";
+    const userName = chatUrlParams.get("username") || "Fusion User";
 
     const requestedPageType =
         (chatUrlParams.get("page_type") || "GENERAL").toUpperCase();
